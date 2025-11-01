@@ -11,7 +11,7 @@ services:
       - ./postgres_data:/var/lib/postgresql/data
 
   n8n:
-    image: n8n-arm32
+    image: n8nio/n8n:0.201.0-linux-arm
     container_name: n8n
     restart: always
     ports:
