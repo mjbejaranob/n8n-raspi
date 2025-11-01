@@ -40,6 +40,12 @@ services:
       - n8n_data:/home/node/.n8n
       - ./local-files:/files
 
+  pytrends:
+    build: ./pytrends-api
+    restart: always
+    ports:
+      - "5000:5000"
+
 volumes:
   n8n_data:
   traefik_data:
