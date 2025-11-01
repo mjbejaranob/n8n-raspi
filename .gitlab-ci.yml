@@ -1,0 +1,17 @@
+stages:
+  - deploy
+
+deploy_to_rpi:
+  stage: deploy
+  image: alpine:3.18
+  only:
+    - main
+  before_script:
+    - apk add --no-cache openssh-client git
+    # configure ssh
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - ssh-keyscan -H "$RPI_HOST" >> ~/.ssh/known_hosts
+  script:
+    - ssh -o StrictHostKeyChecking=yes "$RPI_USER@$RPI_HOST" "cd ~/n8n-raspi || (mkdir -p ~/n8n-raspi && exit); cd ~/n8n-raspi && git pull origin main || (git clone git@gitlab.com:${CI_PROJECT_PATH}.git ~/n8n-raspi) && docker compose pull && docker compose up -d"
