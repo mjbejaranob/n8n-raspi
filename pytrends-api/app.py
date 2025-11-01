@@ -1,19 +1,18 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify
 from pytrends.request import TrendReq
+import json
 
 app = Flask(__name__)
-pytrends = TrendReq(hl='en-US', tz=360)
 
-@app.route('/trends', methods=['GET'])
-def get_trends():
-    keyword = request.args.get('keyword')
-    if not keyword:
-        return jsonify({'error': 'Keyword required'}), 400
-    pytrends.build_payload([keyword])
-    data = pytrends.interest_over_time()
-    if data.empty:
-        return jsonify({'error': 'No data found'}), 404
-    return jsonify(data.reset_index().to_dict(orient='records'))
+@app.route('/trending', methods=['GET'])
+def trending_searches():
+    try:
+        pytrends = TrendReq(hl='en-US', tz=360)
+        trending = pytrends.trending_searches(pn='australia')
+        data = [{"keyword": kw} for kw in trending[0].tolist()]
+        return jsonify(data)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
